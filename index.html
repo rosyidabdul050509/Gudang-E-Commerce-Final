@@ -782,24 +782,6 @@ async function saveKeluar(){
   if(!st.curResult.length)return;
   const now=new Date();const bulan=now.toLocaleString('id-ID',{month:'long'});const tanggal=now.toISOString().split('T')[0];
   const newRows=st.curResult.map(r=>({bulan,tanggal,noPesanan:r.noPesanan,sku:r.sku,nama:r.nama,qty:r.qty,resi:norm(r.resi),ekspedisi:r.ekspedisi,platform:r.platform,gudang:r.gudang}));
-  // Cek apakah ada barcode di master
-  const hasBarcodeData=Object.values(st.master).some(items=>items.some(it=>it.barcode));
-  if(hasBarcodeData){
-    // Simpan dulu ke pending, baru launch packing mode
-    st.pendingRows=newRows;
-    launchPackingMode(st.curResult);
-  } else {
-    // Tidak ada barcode — simpan langsung
-    st.dbK.push(...newRows);
-    const d=await apiPost({action:'appendKeluar',rows:newRows});
-    showAlert('alert-scan',d.status==='ok'?'success':'warn',d.status==='ok'?'Tersimpan!':'Lokal OK, gagal sync.');
-    clearResult();
-  }
-}
-async function saveKeluar(){
-  if(!st.curResult.length)return;
-  const now=new Date();const bulan=now.toLocaleString('id-ID',{month:'long'});const tanggal=now.toISOString().split('T')[0];
-  const newRows=st.curResult.map(r=>({bulan,tanggal,noPesanan:r.noPesanan,sku:r.sku,nama:r.nama,qty:r.qty,resi:norm(r.resi),ekspedisi:r.ekspedisi,platform:r.platform,gudang:r.gudang}));
   // Cek apakah ada barcode di master → masuk antrian packing
   const hasBarcodeData=Object.values(st.master).some(items=>items.some(it=>it.barcode));
   if(hasBarcodeData){
